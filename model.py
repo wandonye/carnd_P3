@@ -28,6 +28,7 @@ def preprocess_image(image, resize_shape, color_transformation=cv2.COLOR_BGR2RGB
 def loadIMG(driving_log, resize_shape):
     imgs = []
     for img_file in driving_log['center'].items():
+        print(img_file)
         img = cv2.imread(img_file)
         imgs.append(preprocess_image(img,resize_shape))
     return imgs
