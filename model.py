@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import cv2
 
 
 def loadData(data_dir):
@@ -16,22 +17,36 @@ def loadData(data_dir):
 
     return driving_log
 
+def preprocess_image(image, resize_shape, color_transformation=cv2.COLOR_BGR2RGB):
+    bottom = int(.84 * image.shape[0])
+    top = int(.31 * image.shape[0])
+    image = image[top:bottom,:]
+    image = cv2.resize(image, resize_shape)
+    image = cv2.cvtColor(image, color_transformation)
+    return image
+
+def loadIMG(driving_log, resize_shape):
+    imgs = []
+    for img_file in driving_log['center'].items():
+        img = cv2.imread(img_file)
+        imgs.append(preprocess_image(img,resize_shape))
+    return imgs
+
 def Nvidia(input_shape=(200,66,3)):
     model = Sequential()
 
-    model.add(Lambda(lambda x: x / 255.0 - 0.5, name="image_normalization", input_shape=input_shape))
+    model.add(Lambda(lambda x: x / 255.0 - 0.5, name="normalization", input_shape=input_shape))
 
-    model.add(Convolution2D(24, 5, 5, name="convolution_1", subsample=(2, 2), border_mode="valid", init='he_normal'))
+    model.add(Convolution2D(24, 5, 5, name="conv1", subsample=(2, 2), border_mode="valid", init='he_normal'))
     model.add(ELU())
-    model.add(Convolution2D(36, 5, 5, name="convolution_2", subsample=(2, 2), border_mode="valid", init='he_normal'))
+    model.add(Convolution2D(36, 5, 5, name="conv2", subsample=(2, 2), border_mode="valid", init='he_normal'))
     model.add(ELU())
-    model.add(Convolution2D(48, 5, 5, name="convolution_3", subsample=(2, 2), border_mode="valid", init='he_normal'))
+    model.add(Convolution2D(48, 5, 5, name="conv3", subsample=(2, 2), border_mode="valid", init='he_normal'))
     model.add(ELU())
-    model.add(Convolution2D(64, 3, 3, name="convolution_4", border_mode="valid", init='he_normal'))
+    model.add(Convolution2D(64, 3, 3, name="conv4", border_mode="valid", init='he_normal'))
     model.add(ELU())
-    model.add(Convolution2D(64, 3, 3, name="convolution_5", border_mode="valid", init='he_normal'))
+    model.add(Convolution2D(64, 3, 3, name="conv5", border_mode="valid", init='he_normal'))
     model.add(ELU())
-
     model.add(Flatten())
 
     model.add(Dense(100, name="hidden1", init='he_normal'))
@@ -44,7 +59,9 @@ def Nvidia(input_shape=(200,66,3)):
     model.add(Dense(1, name="steering_angle", activation="linear"))
 
     return model
-    
+
 if __name__ == '__main__':
-    dataset = loadData('data')
-    print(dataset[:5])
+    driving_log = loadData('data')
+    input_shape = (66, 200, 3)
+    resize_shape = (200, 66)
+    loadIMG(driving_log, resize_shape)
