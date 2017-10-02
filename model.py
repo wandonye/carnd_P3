@@ -4,6 +4,12 @@ import numpy as np
 import pandas as pd
 import cv2
 
+from keras.models import Sequential
+from keras.optimizers import Adam
+from keras.layers.advanced_activations import ELU
+from keras.layers.convolutional import Convolution2D
+from keras.layers.core import Dense, Activation, Flatten, Dropout, Lambda
+from keras.layers.pooling import MaxPooling2D
 
 def loadData(data_dir):
     header = ['center', 'left', 'right', 'steering', 'throttle', 'break', 'speed']
@@ -25,12 +31,14 @@ def preprocess_image(image, resize_shape, color_transformation=cv2.COLOR_BGR2RGB
     image = cv2.cvtColor(image, color_transformation)
     return image
 
-def loadIMG(driving_log, resize_shape):
+def loadLabeledIMG(driving_log, resize_shape):
     imgs = []
-    for img_file in driving_log['center'].items():
-        img = cv2.imread(img_file[1])
+    labels = []
+    for row in driving_log.iterrows():
+        img = cv2.imread(row[1]['center'])
         imgs.append(preprocess_image(img,resize_shape))
-    return imgs
+        labels.append(float(row[1]['steering']))
+    return np.array(imgs), np.array(labels)
 
 def Nvidia(input_shape=(200,66,3)):
     model = Sequential()
@@ -64,4 +72,13 @@ if __name__ == '__main__':
     driving_log = loadData('data')
     input_shape = (66, 200, 3)
     resize_shape = (200, 66)
-    loadIMG(driving_log, resize_shape)
+    X, y = loadLabeledIMG(driving_log, resize_shape)
+    model = Nvidia(input_shape)
+    output_shape = (-1,) + input_shape
+
+    optimizer = Adam(1e-4)
+    model.compile(optimizer=optimizer, loss='mean_squared_error')
+
+    model.fit(X,y, validation_split=0.2, shuffle=True)
+
+    model.save('model.h5')
