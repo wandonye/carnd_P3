@@ -117,7 +117,7 @@ Then I used perspective transformation to evenly distribute the three major stee
 
 The key observation motivate my method is the following (Note that the 2nd and 3rd image are generated with perspective transformation):
 
-![rolling camera to the left and right](https://github.com/wandonye/carnd_P3/blob/master/roll_cam_demo.png =300x "The 2nd and 3rd image are generated with perspective transformation")
+![rolling camera to the left and right](https://github.com/wandonye/carnd_P3/blob/master/roll_cam_demo.png "The 2nd and 3rd image are generated with perspective transformation")
 
 It's not hard to see that the second image needs more steering to the right, and the third image needs more steering to the left.
 
