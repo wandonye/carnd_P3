@@ -56,23 +56,23 @@ def Nvidia():
     model.add(Cropping2D(cropping=((75,25), (0,0)), input_shape=(160,320,3)))
     model.add(Lambda(lambda x: x / 255.0 - 0.5, name="normalization"))
 
-    model.add(Conv2D(24, (5, 5), strides=(2,2), kernel_initializer="he_normal", padding="valid", name="conv1"))
+    model.add(Conv2D(24, 5, 5, subsample=(2,2), init="he_normal", border_mode="valid", name="conv1"))
     model.add(ELU())
-    model.add(Conv2D(36, (3, 3), kernel_initializer="he_normal", padding="valid", name="conv2"))
+    model.add(Conv2D(36, 3, 3, init="he_normal", border_mode="valid", name="conv2"))
     model.add(ELU())
-    model.add(Conv2D(48, (3, 3), kernel_initializer="he_normal", padding="valid", name="conv3"))
+    model.add(Conv2D(48, 3, 3, init="he_normal", border_mode="valid", name="conv3"))
     model.add(ELU())
-    model.add(Conv2D(64, (5, 5), strides=(2,2), kernel_initializer="he_normal", padding="valid", name="conv4"))
+    model.add(Conv2D(64, 5, 5, subsample=(2,2), init="he_normal", border_mode="valid", name="conv4"))
     model.add(ELU())
-    model.add(Conv2D(64, (5, 5), strides=(2,2), kernel_initializer="he_normal", padding="valid", name="conv5"))
+    model.add(Conv2D(64, 5, 5, subsample=(2,2), init="he_normal", border_mode="valid", name="conv5"))
     model.add(ELU())
     model.add(Flatten())
 
-    model.add(Dense(100, name="hidden1", kernel_initializer='he_normal'))
+    model.add(Dense(100, name="hidden1", init='he_normal'))
     model.add(ELU())
-    model.add(Dense(50, name="hidden2", kernel_initializer='he_normal'))
+    model.add(Dense(50, name="hidden2", init='he_normal'))
     model.add(ELU())
-    model.add(Dense(10, name="hidden3", kernel_initializer='he_normal'))
+    model.add(Dense(10, name="hidden3", init='he_normal'))
     model.add(ELU())
 
     model.add(Dense(1, name="steering_angle", activation="linear"))
@@ -100,7 +100,7 @@ def generator(X,y,batch_size=32):
 
             images = []
             angles = []
-            for i in range(len(batch_size)):
+            for i in range(len(batch_X)):
                 originalImage = cv2.cvtColor(cv2.imread(batch_X[i]),
                                              cv2.COLOR_BGR2RGB)
                 adjust = random.uniform(-0.5,0.5)
