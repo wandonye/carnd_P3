@@ -107,9 +107,9 @@ I first loaded all the steering angles and visualized the distribution:
 
 ![steering angle distribution](https://github.com/wandonye/carnd_P3/blob/master/steering_distribution.png)
 
-Obviously the labels are too concentrated around 0. This means in order to give a model with low mean squared error on validation data, the model just need to predict more values close to 0.
+Obviously the labels are too concentrated around 0. This means in order to give a model with low mean squared error on the validation data, the model just needs to predict more values close to 0.
 
-Then I took left camera and right camera into consideration. For left camera, I assigned 0.2 steering to the right, i.e. steering += 0.2. For right camera, I assigned 0.2 steering to the left, i.e. steering -= 0.2. Thus the new distribution of steering angle is like
+Then I took the left camera and right camera into consideration. For the left camera, I adjusted the steering by 0.2 to the right, i.e. steering += 0.2. For right camera, I adjusted the steering by 0.2 to the left, i.e. steering -= 0.2. Thus the new distribution of steering angle is like
 
 ![steering angle distribution with two extra cams](https://github.com/wandonye/carnd_P3/blob/master/steering_distr_3cam.png)
 
@@ -117,7 +117,7 @@ Then I used perspective transformation to evenly distribute the three major stee
 
 The key observation motivate my method is the following:
 
-![rolling camera to the left and right](https://github.com/wandonye/carnd_P3/blob/master/roll_cam_demo.png)
+![rolling camera to the left and right](https://github.com/wandonye/carnd_P3/blob/master/roll_cam_demo.png The 2nd and 3rd image are generated with perspective tranformation)
 
 It's not hard to see that the second image needs more steering to the right, and the third image needs more steering to the left.
 
