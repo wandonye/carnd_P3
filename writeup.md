@@ -115,9 +115,9 @@ Then I took the left camera and right camera into consideration. For the left ca
 
 Then I used perspective transformation to evenly distribute the three major steering direction to any direction between -0.7 and 0.7.
 
-The key observation motivate my method is the following:
+The key observation motivate my method is the following (Note that the 2nd and 3rd image are generated with perspective transformation):
 
-![rolling camera to the left and right](https://github.com/wandonye/carnd_P3/blob/master/roll_cam_demo.png "The 2nd and 3rd image are generated with perspective tranformation")
+![rolling camera to the left and right](https://github.com/wandonye/carnd_P3/blob/master/roll_cam_demo.png "The 2nd and 3rd image are generated with perspective transformation")
 
 It's not hard to see that the second image needs more steering to the right, and the third image needs more steering to the left.
 
