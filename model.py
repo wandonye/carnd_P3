@@ -15,6 +15,7 @@ from keras.layers import Cropping2D, Dense, Activation, Flatten, Dropout, Lambda
 from keras.layers.pooling import MaxPooling2D
 
 def loadData(data_dir):
+    # This function load image paths and steering angles from the driving log
     header = ['center', 'left', 'right', 'steering', 'throttle', 'break', 'speed']
     driving_log = pd.read_csv(os.path.join(data_dir, 'driving_log.csv'),
                               header=0, names=header, comment='#')
@@ -36,24 +37,12 @@ def loadData(data_dir):
 
     return img_path, steering
 
-def loadLabeledIMG(driving_log):
-    center = []
-    left = []
-    right = []
-    labels = []
-    for row in driving_log.iterrows():
-        center.append(cv2.cvtColor(cv2.imread(row[1]['center']),
-                                   cv2.COLOR_BGR2RGB))
-        left.append(cv2.cvtColor(cv2.imread(row[1]['left']),
-                                   cv2.COLOR_BGR2RGB))
-        right.append(cv2.cvtColor(cv2.imread(row[1]['right']),
-                                   cv2.COLOR_BGR2RGB))
-        labels.append(float(row[1]['steering']))
-    return np.array(center),np.array(left),np.array(right), np.array(labels)
-
 def Nvidia():
+    # Modified NVidia model
     model = Sequential()
+    # Crop the original image to remove the sky and hood.
     model.add(Cropping2D(cropping=((75,25), (0,0)), input_shape=(160,320,3)))
+    # Normaize the input values so that they lie in (-0.5, 0.5)
     model.add(Lambda(lambda x: x / 255.0 - 0.5, name="normalization"))
 
     model.add(Conv2D(24, 5, 5, subsample=(2,2), init="he_normal", border_mode="valid", name="conv1"))
@@ -80,6 +69,12 @@ def Nvidia():
     return model
 
 def RollCam(img,deg):
+    # This function perform perspective tranformation to img
+    # The resulting image roughly equivalent to shift the camera
+    # by the value of deg
+    # The rsulting image is expected to have steering angle equals to
+    # the steering angle of the original image (img) - deg
+
     if deg==0: return dst
     d = deg*150
     pts1 = (np.float32([[d,d/40],[d,159-d/40],[319,0],[319,159]]) if d>0
@@ -92,7 +87,7 @@ def RollCam(img,deg):
 
 def generator(X,y,batch_size=32):
     num_samples = len(X)
-    while 1: # Loop forever so the generator never terminates
+    while 1:
         X,y = shuffle(X,y)
         for offset in range(0, num_samples, batch_size):
             batch_X = X[offset:offset+batch_size]
@@ -103,13 +98,19 @@ def generator(X,y,batch_size=32):
             for i in range(len(batch_X)):
                 originalImage = cv2.cvtColor(cv2.imread(batch_X[i]),
                                              cv2.COLOR_BGR2RGB)
+                # The trick below is very important to balance the data
+                # generate a random pertubation angle
                 adjust = random.uniform(-0.5,0.5)
+                # adjust the original image by the angle generated above
+                # i.e. tilt the camera to the right/left
                 image = RollCam(originalImage,adjust)
-
                 images.append(image)
+                # compensate the steering angle
+                # When the cam is rolled to the left, then the steering angle
+                # should be compensated to the right
                 steering = batch_y[i]-adjust
                 angles.append(steering)
-                # Flipping
+                # Flipping, this will balance left and right steering
                 images.append(cv2.flip(image,1))
                 angles.append(steering*-1.0)
 
@@ -133,4 +134,4 @@ if __name__ == '__main__':
                  len(X_train), validation_data=validation_generator, \
                  nb_val_samples=len(X_valid), nb_epoch=3, verbose=1)
 
-    model.save('model_local.h5')
+    model.save('model.h5')
