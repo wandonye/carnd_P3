@@ -26,4 +26,4 @@ The goals / steps of this project are the following:
 
 **Highlight**
 
-* I didn't collect any new data with the simulator due to my bad driving game skill. Instead, I used computer vision method to generate new data. In particular I used perspective transformation to pertubate camera direct for each image, and compensated the recorded steering angle accordingly. This balanced to training data, and is crucial for my model training.
+* I didn't collect any new data with the simulator due to my bad driving game skill. Instead, I used computer vision method to generate new data. In particular I used perspective transformation to pertubate the camera direction for each image, and compensated the recorded steering angle accordingly. This balanced the training data, and is crucial for my model training.
